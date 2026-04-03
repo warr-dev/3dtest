@@ -36,50 +36,56 @@ type Obstacle = {
   radius: number
 }
 
+type DialoguePage = {
+  title: string
+  text: string
+  chips?: readonly string[]
+}
+
 const portfolioSections = [
   {
     id: 'about',
-    title: 'About Me',
-    subtitle: 'Creative developer building playful web experiences',
+    title: 'Lamp',
+    subtitle: 'About Me',
     description:
       'I design and build immersive websites, interactive demos, and polished product experiences. This world is a portfolio you can walk through instead of scroll past.',
     chips: ['Frontend Systems', 'Creative Development', 'UI Motion'],
     cta: 'Available for freelance and portfolio collaborations.',
     color: 0xff8a3d,
-    position: new THREE.Vector3(-8, 0, -6),
+    position: new THREE.Vector3(-5.2, 0, 1.5),
   },
   {
     id: 'projects',
-    title: 'Featured Projects',
-    subtitle: 'Selected work with storytelling and technical depth',
+    title: 'Desk',
+    subtitle: 'Featured Projects',
     description:
       'Recent work includes product landing pages, 3D showcases, and custom interaction systems built for performance and personality.',
     chips: ['Three.js', 'TypeScript', 'Responsive UI'],
     cta: 'Best fit for brands, startups, and personal portfolios that need presence.',
     color: 0x5ec8ff,
-    position: new THREE.Vector3(9, 0, -4),
+    position: new THREE.Vector3(-5.4, 0, -5.2),
   },
   {
     id: 'skills',
-    title: 'Skills',
-    subtitle: 'Tools I use to shape memorable experiences',
+    title: 'Shelf',
+    subtitle: 'Skills',
     description:
       'My stack centers on modern frontend engineering with strong visual craft: Three.js, React, animation systems, component architecture, and sharp UI implementation.',
     chips: ['Three.js', 'React', 'Animation', 'Design Systems'],
     cta: 'I like work that blends engineering clarity with bold visuals.',
     color: 0x7dffb2,
-    position: new THREE.Vector3(-5, 0, 8),
+    position: new THREE.Vector3(5.9, 0, -4.8),
   },
   {
     id: 'contact',
-    title: 'Contact',
-    subtitle: 'Let\'s build something people remember',
+    title: 'Phone',
+    subtitle: 'Contact',
     description:
       'If you want your portfolio, product, or campaign site to feel alive, this is the kind of interactive direction I can help create.',
     chips: ['Email Ready', 'Remote Friendly', 'Fast Iteration'],
     cta: 'Reach out to start a concept, redesign, or interactive prototype.',
     color: 0xf6df63,
-    position: new THREE.Vector3(7, 0, 9),
+    position: new THREE.Vector3(2.4, 0, 6.3),
   },
 ] as const
 
@@ -101,19 +107,34 @@ app.innerHTML = `
         </div>
         <p class="brief-step" id="brief-step">Brief 1 / 3</p>
         <h1 id="brief-title">Welcome to an explorable portfolio world.</h1>
-        <p class="hint-text" id="brief-text">Instead of scrolling a normal website, you can walk through this small 3D space and inspect glowing stations for projects, skills, contact, and more.</p>
+        <p class="hint-text" id="brief-text">Move through the room instead of scrolling a normal site.</p>
         <div class="onboarding-card" id="brief-card">
           <p class="onboarding-label" id="brief-card-label">Objective</p>
-          <p id="brief-card-text">Walk to a glowing station and inspect it to reveal part of the portfolio.</p>
+          <p id="brief-card-text">Find an interactive object to open a portfolio section.</p>
         </div>
-        <p class="hint-footnote" id="brief-footnote">This is a game-like portfolio, so the world itself is part of the presentation.</p>
+        <p class="hint-footnote" id="brief-footnote">Each room object is part of the portfolio.</p>
         <button class="primary-button" id="start-button" type="button">Next</button>
       </div>
 
       <div class="crosshair-wrap">
         <div class="crosshair"></div>
-        <div class="center-prompt" id="center-prompt">Walk to a glowing portfolio station</div>
+        <div class="center-prompt" id="center-prompt">Walk to an interactive object</div>
       </div>
+
+      <section class="dialogue-panel" id="dialogue-panel" aria-live="polite">
+        <div class="dialogue-topbar">
+          <p class="dialogue-channel">Portfolio Link</p>
+          <p class="dialogue-progress" id="dialogue-progress">1 / 3</p>
+        </div>
+        <p class="dialogue-speaker" id="dialogue-speaker">Desk</p>
+        <h2 class="dialogue-title" id="dialogue-title">Featured Projects</h2>
+        <p class="dialogue-text" id="dialogue-text">Recent work includes product landing pages, 3D showcases, and custom interaction systems built for performance and personality.</p>
+        <div class="dialogue-chips" id="dialogue-chips"></div>
+        <div class="dialogue-actions">
+          <button class="secondary-button" id="dialogue-close" type="button">Close</button>
+          <button class="primary-button dialogue-next" id="dialogue-next" type="button">Next</button>
+        </div>
+      </section>
 
       <div class="touch-joystick" id="touch-joystick" aria-hidden="true">
         <div class="touch-joystick-knob" id="touch-joystick-knob"></div>
@@ -136,6 +157,14 @@ const briefTextEl = document.querySelector<HTMLElement>('#brief-text')!
 const briefCardLabelEl = document.querySelector<HTMLElement>('#brief-card-label')!
 const briefCardTextEl = document.querySelector<HTMLElement>('#brief-card-text')!
 const briefFootnoteEl = document.querySelector<HTMLElement>('#brief-footnote')!
+const dialoguePanelEl = document.querySelector<HTMLElement>('#dialogue-panel')!
+const dialogueProgressEl = document.querySelector<HTMLElement>('#dialogue-progress')!
+const dialogueSpeakerEl = document.querySelector<HTMLElement>('#dialogue-speaker')!
+const dialogueTitleEl = document.querySelector<HTMLElement>('#dialogue-title')!
+const dialogueTextEl = document.querySelector<HTMLElement>('#dialogue-text')!
+const dialogueChipsEl = document.querySelector<HTMLElement>('#dialogue-chips')!
+const dialogueCloseEl = document.querySelector<HTMLButtonElement>('#dialogue-close')!
+const dialogueNextEl = document.querySelector<HTMLButtonElement>('#dialogue-next')!
 const touchJoystickEl = document.querySelector<HTMLElement>('#touch-joystick')!
 const touchJoystickKnobEl = document.querySelector<HTMLElement>('#touch-joystick-knob')!
 
@@ -145,8 +174,8 @@ const onboardingSteps = [
     title: 'Welcome to the portfolio world.',
     text: 'Move through the map instead of scrolling a normal site.',
     cardLabel: 'Objective',
-    cardText: 'Find a glowing station to open a portfolio section.',
-    footnote: 'Each beacon is part of the portfolio.',
+    cardText: 'Find an interactive object to open a portfolio section.',
+    footnote: 'Each room object is part of the portfolio.',
     button: 'Next',
   },
   {
@@ -161,7 +190,7 @@ const onboardingSteps = [
   {
     step: 'Brief 3 / 3',
     title: 'Ready to explore.',
-    text: 'Stations lead to projects, skills, contact, and more.',
+    text: 'Objects in the room lead to projects, skills, contact, and more.',
     cardLabel: 'Goal',
     cardText: 'Walk up, wait for F, then inspect.',
     footnote: 'Start exploring when ready.',
@@ -197,7 +226,10 @@ const playerVisualOffset = new THREE.Vector3()
 const facingVector = new THREE.Vector3()
 const player2D = new THREE.Vector2()
 const obstacleDelta = new THREE.Vector2()
-const groundLimit = 12
+const roomMinX = -8.4
+const roomMaxX = 8.4
+const roomMinZ = -7.4
+const roomMaxZ = 7.4
 const playerCollisionRadius = 0.48
 const obstacles: Obstacle[] = []
 let nearestHotspot: Hotspot | null = null
@@ -213,6 +245,9 @@ let touchMoveX = 0
 let touchMoveZ = 0
 let joystickOriginX = 0
 let joystickOriginY = 0
+let activeDialogueHotspot: Hotspot | null = null
+let activeDialoguePages: DialoguePage[] = []
+let activeDialogueIndex = 0
 let playerMixer: THREE.AnimationMixer | null = null
 let walkAction: THREE.AnimationAction | null = null
 let activeAction: THREE.AnimationAction | null = null
@@ -242,44 +277,232 @@ const accentLight = new THREE.PointLight(0x58d4ff, 20, 40)
 accentLight.position.set(-10, 5, -8)
 scene.add(accentLight)
 
-const ground = new THREE.Mesh(
-  new THREE.CylinderGeometry(14, 16, 2.4, 60),
+const floorMaterial = new THREE.MeshStandardMaterial({
+  color: 0x1d2b38,
+  roughness: 0.92,
+  metalness: 0.04,
+})
+
+const wallMaterial = new THREE.MeshStandardMaterial({
+  color: 0x223140,
+  roughness: 0.88,
+  metalness: 0.03,
+})
+
+const trimMaterial = new THREE.MeshStandardMaterial({
+  color: 0x344a60,
+  roughness: 0.6,
+  metalness: 0.08,
+})
+
+const woodMaterial = new THREE.MeshStandardMaterial({
+  color: 0x6e4d37,
+  roughness: 0.82,
+  metalness: 0.04,
+})
+
+const fabricMaterial = new THREE.MeshStandardMaterial({
+  color: 0x405a78,
+  roughness: 0.95,
+  metalness: 0.02,
+})
+
+const accentPropMaterial = new THREE.MeshStandardMaterial({
+  color: 0x8ecbff,
+  roughness: 0.4,
+  metalness: 0.15,
+  emissive: 0x0d1d2e,
+})
+
+const roomFloor = new THREE.Mesh(new THREE.BoxGeometry(18.5, 0.4, 16.5), floorMaterial)
+roomFloor.receiveShadow = true
+roomFloor.position.set(0, -0.2, 0)
+scene.add(roomFloor)
+
+const rug = new THREE.Mesh(
+  new THREE.BoxGeometry(7.2, 0.04, 4.6),
   new THREE.MeshStandardMaterial({
-    color: 0x111d2b,
-    roughness: 0.85,
-    metalness: 0.12,
-    emissive: 0x0a111a,
+    color: 0x2f4563,
+    roughness: 0.96,
+    metalness: 0.02,
   }),
 )
-ground.receiveShadow = true
-ground.position.y = -1.2
-scene.add(ground)
+rug.receiveShadow = true
+rug.position.set(0, 0.03, 0.2)
+scene.add(rug)
 
-const grid = new THREE.GridHelper(28, 20, 0x2ba6c9, 0x143247)
-grid.position.y = 0.03
-;(grid.material as THREE.Material).transparent = true
-;(grid.material as THREE.Material).opacity = 0.28
-scene.add(grid)
+const walls = [
+  { size: [18.5, 4.2, 0.3], pos: [0, 2.1, -8.25] },
+  { size: [18.5, 4.2, 0.3], pos: [0, 2.1, 8.25] },
+  { size: [0.3, 4.2, 16.5], pos: [-9.25, 2.1, 0] },
+  { size: [0.3, 4.2, 16.5], pos: [9.25, 2.1, 0] },
+] as const
 
-const pathMaterial = new THREE.MeshStandardMaterial({
-  color: 0x31455c,
-  roughness: 0.6,
-  metalness: 0.05,
+walls.forEach((wall) => {
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(...wall.size), wallMaterial)
+  mesh.receiveShadow = true
+  mesh.position.set(...wall.pos)
+  scene.add(mesh)
 })
 
-const crossroads = [
-  { x: 0, z: 0, width: 18, depth: 2.2 },
-  { x: 0, z: 0, width: 2.2, depth: 18 },
-  { x: 7.5, z: 7.5, width: 6, depth: 2 },
-  { x: -6.5, z: -5.5, width: 5, depth: 2 },
-]
+const ceilingTrim = new THREE.Mesh(new THREE.BoxGeometry(17.8, 0.12, 15.8), trimMaterial)
+ceilingTrim.position.set(0, 4.22, 0)
+ceilingTrim.receiveShadow = true
+scene.add(ceilingTrim)
 
-crossroads.forEach((path) => {
-  const slab = new THREE.Mesh(new THREE.BoxGeometry(path.width, 0.12, path.depth), pathMaterial)
-  slab.receiveShadow = true
-  slab.position.set(path.x, 0.06, path.z)
-  scene.add(slab)
+const windowFrame = new THREE.Mesh(new THREE.BoxGeometry(3.4, 1.9, 0.08), trimMaterial)
+windowFrame.position.set(0, 2.35, -8.07)
+scene.add(windowFrame)
+
+const windowGlow = new THREE.Mesh(
+  new THREE.PlaneGeometry(3, 1.5),
+  new THREE.MeshBasicMaterial({
+    color: 0x7dc6ff,
+    transparent: true,
+    opacity: 0.35,
+  }),
+)
+windowGlow.position.set(0, 2.35, -8.01)
+scene.add(windowGlow)
+
+const door = new THREE.Mesh(new THREE.BoxGeometry(1.8, 3.2, 0.14), woodMaterial)
+door.position.set(0, 1.6, 8.03)
+door.receiveShadow = true
+scene.add(door)
+
+const desk = new THREE.Group()
+desk.position.set(-5.5, 0, -4.9)
+const deskTop = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.14, 1.1), woodMaterial)
+deskTop.position.y = 1.1
+deskTop.castShadow = true
+deskTop.receiveShadow = true
+desk.add(deskTop)
+;[
+  [-0.95, 0.52, -0.42],
+  [0.95, 0.52, -0.42],
+  [-0.95, 0.52, 0.42],
+  [0.95, 0.52, 0.42],
+].forEach(([x, y, z]) => {
+  const leg = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.04, 0.12), trimMaterial)
+  leg.position.set(x, y, z)
+  leg.castShadow = true
+  desk.add(leg)
 })
+const monitor = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.58, 0.08), accentPropMaterial)
+monitor.position.set(0, 1.55, -0.18)
+monitor.castShadow = true
+desk.add(monitor)
+scene.add(desk)
+obstacles.push({ center: new THREE.Vector2(-5.5, -4.9), radius: 1.25 })
+
+const chair = new THREE.Group()
+chair.position.set(-4.4, 0, -3.8)
+const chairSeat = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.12, 0.8), fabricMaterial)
+chairSeat.position.y = 0.62
+chairSeat.castShadow = true
+chair.add(chairSeat)
+const chairBack = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.9, 0.12), fabricMaterial)
+chairBack.position.set(0, 1.08, -0.34)
+chairBack.castShadow = true
+chair.add(chairBack)
+scene.add(chair)
+obstacles.push({ center: new THREE.Vector2(-4.4, -3.8), radius: 0.55 })
+
+const bed = new THREE.Group()
+bed.position.set(-5.8, 0, 2.6)
+const bedFrame = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.5, 3.6), woodMaterial)
+bedFrame.position.y = 0.25
+bedFrame.castShadow = true
+bedFrame.receiveShadow = true
+bed.add(bedFrame)
+const mattress = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.36, 3.25), fabricMaterial)
+mattress.position.y = 0.68
+mattress.castShadow = true
+bed.add(mattress)
+const pillow = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.2, 0.52), new THREE.MeshStandardMaterial({
+  color: 0xe7edf5,
+  roughness: 0.98,
+  metalness: 0.01,
+}))
+pillow.position.set(0, 0.96, -1.02)
+bed.add(pillow)
+scene.add(bed)
+obstacles.push({ center: new THREE.Vector2(-5.8, 2.6), radius: 1.45 })
+
+const lampTable = new THREE.Group()
+lampTable.position.set(-5.1, 0, 1.55)
+const sideTable = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.72, 0.72), woodMaterial)
+sideTable.position.y = 0.36
+sideTable.castShadow = true
+sideTable.receiveShadow = true
+lampTable.add(sideTable)
+const lampStem = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.7), trimMaterial)
+lampStem.position.y = 0.9
+lampTable.add(lampStem)
+const lampShade = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.18, 0.32, 0.38, 12),
+  new THREE.MeshStandardMaterial({
+    color: 0xffd89f,
+    emissive: 0xffb56b,
+    emissiveIntensity: 0.35,
+    roughness: 0.7,
+    metalness: 0.02,
+  }),
+)
+lampShade.position.y = 1.28
+lampTable.add(lampShade)
+scene.add(lampTable)
+obstacles.push({ center: new THREE.Vector2(-5.1, 1.55), radius: 0.62 })
+
+const shelf = new THREE.Group()
+shelf.position.set(6.2, 0, -5.1)
+const shelfBody = new THREE.Mesh(new THREE.BoxGeometry(1.35, 2.7, 0.52), woodMaterial)
+shelfBody.position.y = 1.35
+shelfBody.castShadow = true
+shelfBody.receiveShadow = true
+shelf.add(shelfBody)
+;[-0.8, 0, 0.8].forEach((yOffset) => {
+  const level = new THREE.Mesh(new THREE.BoxGeometry(1.22, 0.08, 0.5), trimMaterial)
+  level.position.y = 1.35 + yOffset
+  shelf.add(level)
+})
+scene.add(shelf)
+obstacles.push({ center: new THREE.Vector2(6.2, -5.1), radius: 0.9 })
+
+const dresser = new THREE.Group()
+dresser.position.set(6, 0, 2.6)
+const dresserBody = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.4, 0.72), woodMaterial)
+dresserBody.position.y = 0.7
+dresserBody.castShadow = true
+dresserBody.receiveShadow = true
+dresser.add(dresserBody)
+scene.add(dresser)
+obstacles.push({ center: new THREE.Vector2(6, 2.6), radius: 0.92 })
+
+const plantPot = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.24, 0.28, 0.42, 12),
+  new THREE.MeshStandardMaterial({
+    color: 0x77513b,
+    roughness: 0.88,
+    metalness: 0.02,
+  }),
+)
+plantPot.position.set(1.9, 0.21, -6.6)
+plantPot.castShadow = true
+scene.add(plantPot)
+
+const plantLeaves = new THREE.Mesh(
+  new THREE.ConeGeometry(0.48, 1.1, 8),
+  new THREE.MeshStandardMaterial({
+    color: 0x5ca46b,
+    roughness: 0.9,
+    metalness: 0.01,
+  }),
+)
+plantLeaves.position.set(1.9, 0.95, -6.6)
+plantLeaves.castShadow = true
+scene.add(plantLeaves)
+obstacles.push({ center: new THREE.Vector2(1.9, -6.6), radius: 0.5 })
 
 const player = new THREE.Group()
 const playerVisual = new THREE.Group()
@@ -472,91 +695,63 @@ gltfLoader.load('/char/UAL2_Standard.glb', (gltf) => {
   setupWalkAnimation()
 })
 
-player.position.set(0, 0, 3)
+player.position.set(0, 0, 4.8)
 scene.add(player)
-
-function createRock(x: number, z: number, scale: number) {
-  const rock = new THREE.Mesh(
-    new THREE.DodecahedronGeometry(scale, 0),
-    new THREE.MeshStandardMaterial({
-      color: 0x243648,
-      roughness: 0.9,
-      metalness: 0.04,
-    }),
-  )
-  rock.castShadow = true
-  rock.receiveShadow = true
-  rock.position.set(x, scale * 0.8 - 0.1, z)
-  rock.rotation.set(scale, scale * 0.6, scale * 0.3)
-  scene.add(rock)
-  obstacles.push({
-    center: new THREE.Vector2(x, z),
-    radius: scale * 0.95 + 0.18,
-  })
-}
-
-createRock(-10, 2, 0.7)
-createRock(-11, -4, 0.5)
-createRock(11, 1, 0.85)
-createRock(10, -8, 0.55)
-createRock(3, 11, 0.6)
-createRock(-6, 11, 0.7)
 
 const hotspots: Hotspot[] = portfolioSections.map((section) => {
   const root = new THREE.Group()
   root.position.copy(section.position)
 
   const base = new THREE.Mesh(
-    new THREE.CylinderGeometry(1.2, 1.45, 0.55, 6),
+    new THREE.CylinderGeometry(0.52, 0.62, 0.2, 18),
     new THREE.MeshStandardMaterial({
-      color: 0x182435,
-      roughness: 0.75,
+      color: 0x152231,
+      roughness: 0.82,
       metalness: 0.1,
       emissive: 0x0b121b,
     }),
   )
   base.castShadow = true
-  base.receiveShadow = true
-  base.position.y = 0.28
+  base.position.y = 0.1
   root.add(base)
 
-  const pillar = new THREE.Mesh(
-    new THREE.BoxGeometry(0.9, 2.4, 0.9),
+  const marker = new THREE.Mesh(
+    new THREE.RingGeometry(0.34, 0.48, 28),
     new THREE.MeshStandardMaterial({
       color: section.color,
       emissive: section.color,
-      emissiveIntensity: 0.45,
-      roughness: 0.35,
-      metalness: 0.3,
+      emissiveIntensity: 0.14,
+      roughness: 0.5,
+      metalness: 0.18,
     }),
   )
-  pillar.castShadow = true
-  pillar.position.y = 1.6
-  root.add(pillar)
+  marker.rotation.x = Math.PI / 2
+  marker.position.y = 0.06
+  root.add(marker)
 
   const beacon = new THREE.Mesh(
-    new THREE.OctahedronGeometry(0.5, 0),
+    new THREE.SphereGeometry(0.14, 16, 16),
     new THREE.MeshStandardMaterial({
-      color: 0xffffff,
+      color: section.color,
       emissive: section.color,
-      emissiveIntensity: 1.2,
-      roughness: 0.15,
-      metalness: 0.25,
+      emissiveIntensity: 0.22,
+      roughness: 0.55,
+      metalness: 0.1,
     }),
   )
   beacon.castShadow = true
-  beacon.position.y = 3.05
+  beacon.position.y = 0.42
   root.add(beacon)
 
-  const glow = new THREE.PointLight(section.color, 8, 8)
-  glow.position.y = 3.1
+  const glow = new THREE.PointLight(section.color, 1.3, 2.1)
+  glow.position.y = 0.5
   root.add(glow)
 
   scene.add(root)
 
   obstacles.push({
     center: new THREE.Vector2(section.position.x, section.position.z),
-    radius: 1.15,
+    radius: 0.8,
   })
 
   return {
@@ -593,11 +788,87 @@ function flashPrompt(text: string, active = false) {
 
   if (active) {
     promptTimeoutId = window.setTimeout(() => {
-      centerPromptEl.textContent = 'Walk to a glowing station'
+      centerPromptEl.textContent = 'Walk to an interactive object'
       centerPromptEl.classList.remove('active')
       promptTimeoutId = null
     }, 1800)
   }
+}
+
+function buildDialoguePages(hotspot: Hotspot): DialoguePage[] {
+  return [
+    {
+      title: hotspot.subtitle,
+      text: hotspot.description,
+      chips: hotspot.chips,
+    },
+    {
+      title: 'Highlights',
+      text: hotspot.chips.join(' • '),
+    },
+    {
+      title: 'Next Move',
+      text: hotspot.cta,
+    },
+  ]
+}
+
+function renderDialoguePage() {
+  const page = activeDialoguePages[activeDialogueIndex]
+  if (!activeDialogueHotspot || !page) {
+    return
+  }
+
+  dialogueSpeakerEl.textContent = activeDialogueHotspot.title
+  dialogueTitleEl.textContent = page.title
+  dialogueTextEl.textContent = page.text
+  dialogueProgressEl.textContent = `${activeDialogueIndex + 1} / ${activeDialoguePages.length}`
+  dialogueNextEl.textContent = activeDialogueIndex === activeDialoguePages.length - 1 ? 'Close' : 'Next'
+
+  dialogueChipsEl.innerHTML = ''
+  for (const chip of page.chips ?? []) {
+    const chipEl = document.createElement('span')
+    chipEl.className = 'dialogue-chip'
+    chipEl.textContent = chip
+    dialogueChipsEl.append(chipEl)
+  }
+}
+
+function closeDialogue() {
+  activeDialogueHotspot = null
+  activeDialoguePages = []
+  activeDialogueIndex = 0
+  dialoguePanelEl.classList.remove('visible')
+  controls.clear()
+  touchMoveX = 0
+  touchMoveZ = 0
+  canvas.focus()
+}
+
+function advanceDialogue() {
+  if (!activeDialogueHotspot) {
+    return
+  }
+
+  if (activeDialogueIndex < activeDialoguePages.length - 1) {
+    activeDialogueIndex += 1
+    renderDialoguePage()
+    return
+  }
+
+  closeDialogue()
+}
+
+function openDialogue(hotspot: Hotspot) {
+  activeDialogueHotspot = hotspot
+  activeDialoguePages = buildDialoguePages(hotspot)
+  activeDialogueIndex = 0
+  controls.clear()
+  touchMoveX = 0
+  touchMoveZ = 0
+  stopTouchJoystick()
+  renderDialoguePage()
+  dialoguePanelEl.classList.add('visible')
 }
 
 function interactWithNearest() {
@@ -610,7 +881,7 @@ function interactWithNearest() {
     return
   }
 
-  flashPrompt(`${nearestHotspot.title} discovered`, true)
+  openDialogue(nearestHotspot)
 }
 
 function dismissStartupHint() {
@@ -701,6 +972,12 @@ function stopTouchJoystick() {
 window.addEventListener('keydown', (event) => {
   const key = event.key.toLowerCase()
 
+  if (dialoguePanelEl.classList.contains('visible')) {
+    if (key === 'escape') closeDialogue()
+    if (key === 'enter' || key === ' ') advanceDialogue()
+    return
+  }
+
   if (key === 'w' || key === 'arrowup') setControl('up', true)
   if (key === 's' || key === 'arrowdown') setControl('down', true)
   if (key === 'a' || key === 'arrowleft') setControl('left', true)
@@ -720,9 +997,11 @@ window.addEventListener('keyup', (event) => {
 
 interactButtonEl.addEventListener('click', interactWithNearest)
 startButtonEl.addEventListener('click', advanceOnboarding)
+dialogueCloseEl.addEventListener('click', closeDialogue)
+dialogueNextEl.addEventListener('click', advanceDialogue)
 stageEl.addEventListener('pointerdown', (event) => {
   const target = event.target as HTMLElement | null
-  if (target?.closest('.interact-fab') || target?.closest('.startup-hint')) {
+  if (target?.closest('.interact-fab') || target?.closest('.startup-hint') || target?.closest('.dialogue-panel')) {
     return
   }
 
@@ -879,19 +1158,15 @@ function animate() {
     playerMixer.update(delta)
   }
 
-  const radialDistance = Math.hypot(player.position.x, player.position.z)
-  if (radialDistance > groundLimit) {
-    const ratio = groundLimit / radialDistance
-    player.position.x *= ratio
-    player.position.z *= ratio
-  }
+  player.position.x = THREE.MathUtils.clamp(player.position.x, roomMinX, roomMaxX)
+  player.position.z = THREE.MathUtils.clamp(player.position.z, roomMinZ, roomMaxZ)
 
   resolveCollisions()
 
   hotspots.forEach((hotspot, index) => {
-    hotspot.beacon.rotation.y += delta * (1.2 + index * 0.12)
-    hotspot.beacon.position.y = 3.05 + Math.sin(elapsed * 2 + index) * 0.18
-    hotspot.root.rotation.y = Math.sin(elapsed * 0.5 + index) * 0.08
+    hotspot.beacon.rotation.y += delta * (0.35 + index * 0.04)
+    hotspot.beacon.position.y = 0.42 + Math.sin(elapsed * 1.2 + index) * 0.035
+    hotspot.root.rotation.y = Math.sin(elapsed * 0.35 + index) * 0.015
   })
 
   let currentNearest: Hotspot | null = null
@@ -908,16 +1183,22 @@ function animate() {
   nearestHotspot = currentNearest
 
   if (promptTimeoutId === null) {
+    if (dialoguePanelEl.classList.contains('visible')) {
+      centerPromptEl.textContent = 'Press Enter to continue dialogue'
+      centerPromptEl.classList.add('active')
+      interactButtonEl.classList.remove('visible')
+    } else {
     const nearbyHotspot = currentNearest as Hotspot | null
 
-    if (nearbyHotspot !== null && nearestDistance <= 2.4) {
-      centerPromptEl.textContent = `Press E to inspect ${nearbyHotspot.title}`
-      centerPromptEl.classList.add('active')
-      interactButtonEl.classList.add('visible')
-    } else {
-      centerPromptEl.textContent = 'Walk to a glowing station'
-      centerPromptEl.classList.remove('active')
-      interactButtonEl.classList.remove('visible')
+      if (nearbyHotspot !== null && nearestDistance <= 2.4) {
+        centerPromptEl.textContent = `Press E to inspect ${nearbyHotspot.title}`
+        centerPromptEl.classList.add('active')
+        interactButtonEl.classList.add('visible')
+      } else {
+        centerPromptEl.textContent = 'Walk to an interactive object'
+        centerPromptEl.classList.remove('active')
+        interactButtonEl.classList.remove('visible')
+      }
     }
   }
 
@@ -926,6 +1207,9 @@ function animate() {
     player.position.y + 2.2 + Math.sin(cameraPitch) * 4.2,
     player.position.z - Math.cos(cameraYaw) * Math.cos(cameraPitch) * 5.2,
   )
+  cameraGoal.x = THREE.MathUtils.clamp(cameraGoal.x, roomMinX + 0.7, roomMaxX - 0.7)
+  cameraGoal.z = THREE.MathUtils.clamp(cameraGoal.z, roomMinZ + 0.7, roomMaxZ - 0.7)
+  cameraGoal.y = THREE.MathUtils.clamp(cameraGoal.y, 1.6, 3.7)
   lookGoal.set(player.position.x, player.position.y + 1.45, player.position.z)
 
   camera.position.lerp(cameraGoal, 0.08)

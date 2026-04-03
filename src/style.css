@@ -244,6 +244,116 @@ button {
   color: #fff0d8;
 }
 
+.dialogue-panel {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  z-index: 3;
+  width: min(760px, calc(100vw - 28px));
+  padding: 16px 18px;
+  border: 1px solid rgba(133, 235, 255, 0.18);
+  border-radius: 18px;
+  transform: translateX(-50%);
+  opacity: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(8, 16, 26, 0.94), rgba(6, 11, 19, 0.92)),
+    linear-gradient(90deg, rgba(255, 181, 107, 0.03), rgba(133, 235, 255, 0.03));
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.34);
+}
+
+.dialogue-panel.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.dialogue-topbar,
+.dialogue-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dialogue-topbar {
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(129, 196, 235, 0.14);
+}
+
+.dialogue-channel,
+.dialogue-progress,
+.dialogue-speaker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.dialogue-channel,
+.dialogue-progress {
+  font-size: 0.76rem;
+}
+
+.dialogue-channel {
+  color: #ffb56b;
+}
+
+.dialogue-progress,
+.dialogue-speaker {
+  color: #89d9ff;
+}
+
+.dialogue-speaker {
+  font-size: 0.8rem;
+}
+
+.dialogue-title {
+  margin: 8px 0 0;
+  font-size: clamp(1.3rem, 3vw, 2rem);
+  line-height: 1.05;
+  color: #f4fbff;
+}
+
+.dialogue-text {
+  margin: 10px 0 0;
+  color: #d6e6f1;
+  line-height: 1.7;
+}
+
+.dialogue-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  min-height: 28px;
+}
+
+.dialogue-chip {
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(133, 235, 255, 0.16);
+  background: rgba(14, 26, 38, 0.86);
+  color: #d9edf9;
+  font-size: 0.8rem;
+}
+
+.dialogue-actions {
+  margin-top: 16px;
+}
+
+.secondary-button {
+  border: 1px solid rgba(133, 235, 255, 0.18);
+  border-radius: 999px;
+  padding: 11px 16px;
+  background: rgba(13, 23, 34, 0.88);
+  color: #d7ebf8;
+  cursor: pointer;
+}
+
+.dialogue-next {
+  margin-top: 0;
+}
+
 .touch-joystick {
   position: absolute;
   width: 108px;
@@ -351,6 +461,21 @@ button {
     padding: 10px 12px;
   }
 
+  .dialogue-panel {
+    width: calc(100vw - 20px);
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    padding: 14px;
+  }
+
+  .dialogue-actions {
+    gap: 10px;
+  }
+
+  .secondary-button,
+  .dialogue-next {
+    min-height: 50px;
+  }
+
 
   .touch-joystick {
     width: 120px;
@@ -415,6 +540,11 @@ button {
     height: 58px;
     min-width: 58px;
     min-height: 58px;
+  }
+
+  .dialogue-topbar,
+  .dialogue-actions {
+    flex-wrap: wrap;
   }
 
 }
