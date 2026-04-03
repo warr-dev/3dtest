@@ -95,30 +95,31 @@ app.innerHTML = `
       <canvas class="viewport-canvas" aria-label="3D third person portfolio experience" tabindex="0"></canvas>
 
       <div class="startup-hint visible" id="startup-hint">
-        <p class="hint-label">Interactive Portfolio</p>
-        <h1>Walk the map and inspect the glowing stations.</h1>
-        <p class="hint-text">Move with <strong>WASD</strong> or <strong>Arrow Keys</strong>. Drag to turn the camera. Press <strong>E</strong> near a beacon to interact.</p>
-        <button class="primary-button" id="start-button" type="button">Enter</button>
+        <div class="window-topbar">
+          <p class="hint-label">Mission Briefing</p>
+          <p class="window-status">Portfolio.exe</p>
+        </div>
+        <p class="brief-step" id="brief-step">Brief 1 / 3</p>
+        <h1 id="brief-title">Welcome to an explorable portfolio world.</h1>
+        <p class="hint-text" id="brief-text">Instead of scrolling a normal website, you can walk through this small 3D space and inspect glowing stations for projects, skills, contact, and more.</p>
+        <div class="onboarding-card" id="brief-card">
+          <p class="onboarding-label" id="brief-card-label">Objective</p>
+          <p id="brief-card-text">Walk to a glowing station and inspect it to reveal part of the portfolio.</p>
+        </div>
+        <p class="hint-footnote" id="brief-footnote">This is a game-like portfolio, so the world itself is part of the presentation.</p>
+        <button class="primary-button" id="start-button" type="button">Next</button>
       </div>
 
       <div class="crosshair-wrap">
         <div class="crosshair"></div>
-        <div class="center-prompt" id="center-prompt">Walk to a glowing station</div>
+        <div class="center-prompt" id="center-prompt">Walk to a glowing portfolio station</div>
       </div>
 
       <div class="touch-joystick" id="touch-joystick" aria-hidden="true">
         <div class="touch-joystick-knob" id="touch-joystick-knob"></div>
       </div>
 
-      <div class="controls-dock">
-        <div class="touch-pad" aria-label="Movement controls">
-          <button data-control="up" type="button">Up</button>
-          <button data-control="left" type="button">Left</button>
-          <button data-control="down" type="button">Down</button>
-          <button data-control="right" type="button">Right</button>
-        </div>
-        <button class="interact-button" id="interact-button" type="button">Interact</button>
-      </div>
+      <button class="interact-fab" id="interact-button" type="button" aria-label="Interact">F</button>
     </section>
   </main>
 `
@@ -129,8 +130,45 @@ const stageEl = document.querySelector<HTMLElement>('#viewport-stage')!
 const interactButtonEl = document.querySelector<HTMLButtonElement>('#interact-button')!
 const startButtonEl = document.querySelector<HTMLButtonElement>('#start-button')!
 const startupHintEl = document.querySelector<HTMLElement>('#startup-hint')!
+const briefStepEl = document.querySelector<HTMLElement>('#brief-step')!
+const briefTitleEl = document.querySelector<HTMLElement>('#brief-title')!
+const briefTextEl = document.querySelector<HTMLElement>('#brief-text')!
+const briefCardLabelEl = document.querySelector<HTMLElement>('#brief-card-label')!
+const briefCardTextEl = document.querySelector<HTMLElement>('#brief-card-text')!
+const briefFootnoteEl = document.querySelector<HTMLElement>('#brief-footnote')!
 const touchJoystickEl = document.querySelector<HTMLElement>('#touch-joystick')!
 const touchJoystickKnobEl = document.querySelector<HTMLElement>('#touch-joystick-knob')!
+
+const onboardingSteps = [
+  {
+    step: 'Brief 1 / 3',
+    title: 'Welcome to the portfolio world.',
+    text: 'Move through the map instead of scrolling a normal site.',
+    cardLabel: 'Objective',
+    cardText: 'Find a glowing station to open a portfolio section.',
+    footnote: 'Each beacon is part of the portfolio.',
+    button: 'Next',
+  },
+  {
+    step: 'Brief 2 / 3',
+    title: 'Learn the controls.',
+    text: 'Desktop: WASD to move, drag to look.',
+    cardLabel: 'Controls',
+    cardText: 'Mobile: one touch moves, second touch rotates camera.',
+    footnote: 'When F appears, you can interact.',
+    button: 'Next',
+  },
+  {
+    step: 'Brief 3 / 3',
+    title: 'Ready to explore.',
+    text: 'Stations lead to projects, skills, contact, and more.',
+    cardLabel: 'Goal',
+    cardText: 'Walk up, wait for F, then inspect.',
+    footnote: 'Start exploring when ready.',
+    button: 'Start Exploring',
+  },
+] as const
+let onboardingStepIndex = 0
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
@@ -580,6 +618,27 @@ function dismissStartupHint() {
   canvas.focus()
 }
 
+function renderOnboardingStep() {
+  const step = onboardingSteps[onboardingStepIndex]
+  briefStepEl.textContent = step.step
+  briefTitleEl.textContent = step.title
+  briefTextEl.textContent = step.text
+  briefCardLabelEl.textContent = step.cardLabel
+  briefCardTextEl.textContent = step.cardText
+  briefFootnoteEl.textContent = step.footnote
+  startButtonEl.textContent = step.button
+}
+
+function advanceOnboarding() {
+  if (onboardingStepIndex < onboardingSteps.length - 1) {
+    onboardingStepIndex += 1
+    renderOnboardingStep()
+    return
+  }
+
+  dismissStartupHint()
+}
+
 function rotateCamera(deltaX: number, deltaY: number) {
   cameraYaw += deltaX * 0.008
   cameraPitch = THREE.MathUtils.clamp(cameraPitch + deltaY * 0.006, 0.2, 1.05)
@@ -647,7 +706,7 @@ window.addEventListener('keydown', (event) => {
   if (key === 'a' || key === 'arrowleft') setControl('left', true)
   if (key === 'd' || key === 'arrowright') setControl('right', true)
   if (key === 'e') interactWithNearest()
-  if (key === 'enter' || key === ' ') dismissStartupHint()
+  if ((key === 'enter' || key === ' ') && startupHintEl.classList.contains('visible')) advanceOnboarding()
 })
 
 window.addEventListener('keyup', (event) => {
@@ -659,23 +718,11 @@ window.addEventListener('keyup', (event) => {
   if (key === 'd' || key === 'arrowright') setControl('right', false)
 })
 
-document.querySelectorAll<HTMLButtonElement>('[data-control]').forEach((button) => {
-  const control = button.dataset.control as ControlKey
-
-  const activate = () => setControl(control, true)
-  const deactivate = () => setControl(control, false)
-
-  button.addEventListener('pointerdown', activate)
-  button.addEventListener('pointerup', deactivate)
-  button.addEventListener('pointerleave', deactivate)
-  button.addEventListener('pointercancel', deactivate)
-})
-
 interactButtonEl.addEventListener('click', interactWithNearest)
-startButtonEl.addEventListener('click', dismissStartupHint)
+startButtonEl.addEventListener('click', advanceOnboarding)
 stageEl.addEventListener('pointerdown', (event) => {
   const target = event.target as HTMLElement | null
-  if (target?.closest('.controls-dock') || target?.closest('.startup-hint')) {
+  if (target?.closest('.interact-fab') || target?.closest('.startup-hint')) {
     return
   }
 
@@ -760,6 +807,7 @@ window.addEventListener('pointercancel', (event) => {
 window.addEventListener('resize', resize)
 
 resize()
+renderOnboardingStep()
 
 function animate() {
   requestAnimationFrame(animate)
@@ -865,9 +913,11 @@ function animate() {
     if (nearbyHotspot !== null && nearestDistance <= 2.4) {
       centerPromptEl.textContent = `Press E to inspect ${nearbyHotspot.title}`
       centerPromptEl.classList.add('active')
+      interactButtonEl.classList.add('visible')
     } else {
       centerPromptEl.textContent = 'Walk to a glowing station'
       centerPromptEl.classList.remove('active')
+      interactButtonEl.classList.remove('visible')
     }
   }
 
@@ -876,7 +926,7 @@ function animate() {
     player.position.y + 2.2 + Math.sin(cameraPitch) * 4.2,
     player.position.z - Math.cos(cameraYaw) * Math.cos(cameraPitch) * 5.2,
   )
-  lookGoal.set(player.position.x, 1.45, player.position.z)
+  lookGoal.set(player.position.x, player.position.y + 1.45, player.position.z)
 
   camera.position.lerp(cameraGoal, 0.08)
   camera.lookAt(lookGoal)
