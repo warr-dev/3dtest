@@ -28,6 +28,7 @@ type Hotspot = {
   color: number
   position: THREE.Vector3
   root: THREE.Group
+  marker: THREE.Mesh
   beacon: THREE.Mesh
 }
 
@@ -48,9 +49,9 @@ const portfolioSections = [
     title: 'Lamp',
     subtitle: 'About Me',
     description:
-      'I design and build immersive websites, interactive demos, and polished product experiences. This world is a portfolio you can walk through instead of scroll past.',
-    chips: ['Frontend Systems', 'Creative Development', 'UI Motion'],
-    cta: 'Available for freelance and portfolio collaborations.',
+      'I am Warren Dalawampu, a software engineer with backend, systems, and platform development experience across gaming, insurance, internal tools, and infrastructure-focused projects.',
+    chips: ['Software Engineer', 'Backend Development', 'Systems Work'],
+    cta: 'Based in Pasig City and open to building solid systems with product-minded teams.',
     color: 0xff8a3d,
     position: new THREE.Vector3(-5.2, 0, 1.5),
   },
@@ -59,9 +60,9 @@ const portfolioSections = [
     title: 'Desk',
     subtitle: 'Featured Projects',
     description:
-      'Recent work includes product landing pages, 3D showcases, and custom interaction systems built for performance and personality.',
-    chips: ['Three.js', 'TypeScript', 'Responsive UI'],
-    cta: 'Best fit for brands, startups, and personal portfolios that need presence.',
+      'Recent work includes online casino platform development, a localized LAN-based casino system built from Ubuntu upward, backend APIs, streaming servers, microservices, and internal tools for operations and admin workflows.',
+    chips: ['Casino Platform', 'Microservices', 'Laravel', 'Node.js'],
+    cta: 'Strong fit for backend-heavy products, platform work, and custom operational systems.',
     color: 0x5ec8ff,
     position: new THREE.Vector3(-5.4, 0, -5.2),
   },
@@ -70,9 +71,9 @@ const portfolioSections = [
     title: 'Shelf',
     subtitle: 'Skills',
     description:
-      'My stack centers on modern frontend engineering with strong visual craft: Three.js, React, animation systems, component architecture, and sharp UI implementation.',
-    chips: ['Three.js', 'React', 'Animation', 'Design Systems'],
-    cta: 'I like work that blends engineering clarity with bold visuals.',
+      'My stack covers backend engineering, APIs, databases, infrastructure, containerized development, Linux systems, hardware integration, and frontend work when needed.',
+    chips: ['PHP', 'Laravel', 'Node.js', 'MongoDB', 'Docker', 'Linux'],
+    cta: 'Comfortable across application code, deployment flow, and low-level integration points.',
     color: 0x7dffb2,
     position: new THREE.Vector3(5.9, 0, -4.8),
   },
@@ -81,9 +82,9 @@ const portfolioSections = [
     title: 'Phone',
     subtitle: 'Contact',
     description:
-      'If you want your portfolio, product, or campaign site to feel alive, this is the kind of interactive direction I can help create.',
-    chips: ['Email Ready', 'Remote Friendly', 'Fast Iteration'],
-    cta: 'Reach out to start a concept, redesign, or interactive prototype.',
+      'You can reach me directly for backend development, systems engineering, platform work, or technical problem solving across product and infrastructure projects.',
+    chips: ['warrdev08@gmail.com', '+63 956 164 5935', 'github.com/warr-dev'],
+    cta: 'Reach out by email or GitHub if you want to talk about opportunities or collaboration.',
     color: 0xf6df63,
     position: new THREE.Vector3(2.4, 0, 6.3),
   },
@@ -716,35 +717,42 @@ const hotspots: Hotspot[] = portfolioSections.map((section) => {
   root.add(base)
 
   const marker = new THREE.Mesh(
-    new THREE.RingGeometry(0.34, 0.48, 28),
+    new THREE.TorusGeometry(0.74, 0.08, 12, 32),
     new THREE.MeshStandardMaterial({
       color: section.color,
       emissive: section.color,
-      emissiveIntensity: 0.14,
-      roughness: 0.5,
-      metalness: 0.18,
+      emissiveIntensity: 0.28,
+      roughness: 0.22,
+      metalness: 0.08,
+      transparent: true,
+      opacity: 0.46,
+      side: THREE.DoubleSide,
     }),
   )
   marker.rotation.x = Math.PI / 2
-  marker.position.y = 0.06
+  marker.position.y = 1.05
   root.add(marker)
 
   const beacon = new THREE.Mesh(
-    new THREE.SphereGeometry(0.14, 16, 16),
+    new THREE.RingGeometry(0.22, 0.36, 24),
     new THREE.MeshStandardMaterial({
-      color: section.color,
+      color: 0xffffff,
       emissive: section.color,
-      emissiveIntensity: 0.22,
-      roughness: 0.55,
-      metalness: 0.1,
+      emissiveIntensity: 0.34,
+      roughness: 0.28,
+      metalness: 0.18,
+      transparent: true,
+      opacity: 0.72,
+      side: THREE.DoubleSide,
     }),
   )
   beacon.castShadow = true
-  beacon.position.y = 0.42
+  beacon.rotation.x = Math.PI / 2
+  beacon.position.y = 1.72
   root.add(beacon)
 
-  const glow = new THREE.PointLight(section.color, 1.3, 2.1)
-  glow.position.y = 0.5
+  const glow = new THREE.PointLight(section.color, 1.6, 3)
+  glow.position.y = 1.3
   root.add(glow)
 
   scene.add(root)
@@ -757,6 +765,7 @@ const hotspots: Hotspot[] = portfolioSections.map((section) => {
   return {
     ...section,
     root,
+    marker,
     beacon,
   }
 })
@@ -796,6 +805,79 @@ function flashPrompt(text: string, active = false) {
 }
 
 function buildDialoguePages(hotspot: Hotspot): DialoguePage[] {
+  if (hotspot.id === 'about') {
+    return [
+      {
+        title: hotspot.subtitle,
+        text: 'I am Warren Dalawampu, a software engineer focused on backend systems, platforms, integrations, and reliable delivery across complex technical environments.',
+        chips: ['Pasig City', 'Software Engineer', 'Backend + Systems'],
+      },
+      {
+        title: 'Career Path',
+        text: 'My recent roles include Senior Backend Developer at NTT Limited Philippines Branch, Configuration Analyst at EClaro Philippines, PHP Developer at 1 Bit Software Development Corp., and Junior Backend Developer at MVSoftech.',
+      },
+      {
+        title: 'Education',
+        text: 'I earned a BS in Information Technology from Mindoro State University and also pursued a Master of Science in Information Technology at Batangas State University.',
+      },
+    ]
+  }
+
+  if (hotspot.id === 'projects') {
+    return [
+      {
+        title: hotspot.subtitle,
+        text: 'Recent work includes building an online casino gaming platform and developing a localized casino system from scratch under a LAN server setup.',
+        chips: ['Gaming Platform', 'LAN System', 'Platform Engineering'],
+      },
+      {
+        title: 'System Work',
+        text: 'I have built RESTful APIs, streaming servers, microservices, admin tooling, notification bots, and internal operational systems using Laravel, Node.js, MongoDB, MySQL, and related backend tooling.',
+      },
+      {
+        title: 'Low-Level + Integration',
+        text: 'I also worked on C++ hardware drivers for casino terminals, exposed device functionality through WebSocket services, and integrated payment providers such as Xendit and UnionBank.',
+      },
+    ]
+  }
+
+  if (hotspot.id === 'skills') {
+    return [
+      {
+        title: hotspot.subtitle,
+        text: 'My technical stack spans PHP, Laravel, Node.js, C#, Python, REST APIs, microservices, TDD, MongoDB, MySQL, Redis or Memcached, RabbitMQ, and Protobuf.',
+        chips: ['Laravel', 'Node.js', 'MongoDB', 'MySQL'],
+      },
+      {
+        title: 'Infrastructure',
+        text: 'I regularly work with Docker, Linux, virtual machines, reverse proxies, self-hosted GitLab, CI/CD pipelines, GitHub Actions, Nginx, Apache, WireGuard, and on-prem services.',
+      },
+      {
+        title: 'Extra Depth',
+        text: 'Beyond application code, I have experience with hardware troubleshooting, network-related work, proprietary device libraries, driver development, and operational tooling.',
+      },
+    ]
+  }
+
+  if (hotspot.id === 'contact') {
+    return [
+      {
+        title: hotspot.subtitle,
+        text: 'If you need help with backend engineering, systems integration, infrastructure-aware application work, or platform development, I am open to discussing opportunities.',
+        chips: ['warrdev08@gmail.com', '+63 956 164 5935'],
+      },
+      {
+        title: 'Where To Reach Me',
+        text: 'Email is the fastest way to reach me, and my code history and public work can also be viewed through GitHub.',
+        chips: ['github.com/warr-dev'],
+      },
+      {
+        title: 'Next Move',
+        text: 'Reach out if you want to discuss a role, a backend-heavy project, or a technical system that needs solid implementation.',
+      },
+    ]
+  }
+
   return [
     {
       title: hotspot.subtitle,
@@ -982,7 +1064,7 @@ window.addEventListener('keydown', (event) => {
   if (key === 's' || key === 'arrowdown') setControl('down', true)
   if (key === 'a' || key === 'arrowleft') setControl('left', true)
   if (key === 'd' || key === 'arrowright') setControl('right', true)
-  if (key === 'e') interactWithNearest()
+  if (key === 'f') interactWithNearest()
   if ((key === 'enter' || key === ' ') && startupHintEl.classList.contains('visible')) advanceOnboarding()
 })
 
@@ -1164,9 +1246,13 @@ function animate() {
   resolveCollisions()
 
   hotspots.forEach((hotspot, index) => {
-    hotspot.beacon.rotation.y += delta * (0.35 + index * 0.04)
-    hotspot.beacon.position.y = 0.42 + Math.sin(elapsed * 1.2 + index) * 0.035
-    hotspot.root.rotation.y = Math.sin(elapsed * 0.35 + index) * 0.015
+    const orbitAngle = elapsed * (0.9 + index * 0.08)
+    hotspot.marker.position.x = Math.cos(orbitAngle) * 0.18
+    hotspot.marker.position.z = Math.sin(orbitAngle) * 0.18
+    hotspot.marker.position.y = 1.05 + Math.sin(elapsed * 1.4 + index) * 0.06
+    hotspot.marker.rotation.z += delta * (0.6 + index * 0.03)
+    hotspot.beacon.rotation.z += delta * (0.5 + index * 0.04)
+    hotspot.beacon.position.y = 1.72 + Math.sin(elapsed * 1.6 + index) * 0.05
   })
 
   let currentNearest: Hotspot | null = null
@@ -1191,7 +1277,7 @@ function animate() {
     const nearbyHotspot = currentNearest as Hotspot | null
 
       if (nearbyHotspot !== null && nearestDistance <= 2.4) {
-        centerPromptEl.textContent = `Press E to inspect ${nearbyHotspot.title}`
+        centerPromptEl.textContent = `Press F to inspect ${nearbyHotspot.title}`
         centerPromptEl.classList.add('active')
         interactButtonEl.classList.add('visible')
       } else {
