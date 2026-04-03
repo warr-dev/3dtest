@@ -1,7 +1,6 @@
 import './style.css'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js'
 
 type ControlKey = 'up' | 'down' | 'left' | 'right'
 
@@ -340,9 +339,12 @@ const walls = [
 ] as const
 
 walls.forEach((wall) => {
-  const mesh = new THREE.Mesh(new THREE.BoxGeometry(...wall.size), wallMaterial)
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(wall.size[0], wall.size[1], wall.size[2]),
+    wallMaterial,
+  )
   mesh.receiveShadow = true
-  mesh.position.set(...wall.pos)
+  mesh.position.set(wall.pos[0], wall.pos[1], wall.pos[2])
   scene.add(mesh)
 })
 
@@ -577,16 +579,18 @@ function playRetargetedClip(
     return
   }
 
+  const mixerRoot = playerModel!
+
   try {
     if (!playerMixer) {
-      playerMixer = new THREE.AnimationMixer(playerModel)
+      playerMixer = new THREE.AnimationMixer(mixerRoot)
     }
 
     if (activeAction) {
       activeAction.stop()
     }
 
-    activeAction = playerMixer.clipAction(clip, playerModel)
+    activeAction = playerMixer.clipAction(clip, mixerRoot)
     activeAction.reset()
     activeAction.setLoop(options.loop == false ? THREE.LoopOnce : THREE.LoopRepeat, Infinity)
     activeAction.clampWhenFinished = true
@@ -645,9 +649,11 @@ function setupWalkAnimation() {
     animationClips.find((clip) => /jog|run/i.test(clip.name)) ??
     animationClips[0]
 
+  const mixerRoot = playerModel!
+
   try {
-    playerMixer = new THREE.AnimationMixer(playerModel)
-    walkAction = playerMixer.clipAction(walkClip, playerModel)
+    playerMixer = new THREE.AnimationMixer(mixerRoot)
+    walkAction = playerMixer.clipAction(walkClip, mixerRoot)
     walkAction.reset()
     walkAction.play()
     walkAction.paused = true
@@ -783,24 +789,6 @@ function setControl(control: ControlKey, active: boolean) {
     controls.add(control)
   } else {
     controls.delete(control)
-  }
-}
-
-function flashPrompt(text: string, active = false) {
-  if (promptTimeoutId !== null) {
-    window.clearTimeout(promptTimeoutId)
-    promptTimeoutId = null
-  }
-
-  centerPromptEl.textContent = text
-  centerPromptEl.classList.toggle('active', active)
-
-  if (active) {
-    promptTimeoutId = window.setTimeout(() => {
-      centerPromptEl.textContent = 'Walk to an interactive object'
-      centerPromptEl.classList.remove('active')
-      promptTimeoutId = null
-    }, 1800)
   }
 }
 
