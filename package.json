@@ -1,0 +1,28 @@
+{
+  "name": "portfolio",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:network": "vite --config vite.network.config.ts --host 0.0.0.0",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3",
+    "vite": "^8.0.1"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
+    "@react-three/rapier": "^2.2.0",
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/three": "^0.183.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "tailwindcss": "^4.2.2",
+    "three": "^0.183.2",
+    "zustand": "^5.0.12"
+  }
+}

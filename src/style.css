@@ -1,0 +1,363 @@
+﻿:root {
+  color: #edf7ff;
+  background: #02070d;
+  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  --line: rgba(140, 210, 255, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background: #02070d;
+  overflow: hidden;
+}
+
+button {
+  font: inherit;
+}
+
+.game-shell {
+  min-height: 100vh;
+}
+
+.viewport-stage {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  touch-action: none;
+  background:
+    radial-gradient(circle at top, rgba(50, 123, 172, 0.22), transparent 30%),
+    linear-gradient(180deg, #081018 0%, #050b12 100%);
+}
+
+.viewport-canvas {
+  display: block;
+  width: 100%;
+  height: 100vh;
+  touch-action: none;
+}
+
+.startup-hint,
+.controls-dock {
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(7, 15, 24, 0.86), rgba(5, 10, 17, 0.76));
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(16px);
+}
+
+.startup-hint {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  width: min(560px, calc(100vw - 32px));
+  padding: 22px 22px 20px;
+  border-radius: 22px;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+}
+
+.startup-hint.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hint-label {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.72rem;
+  color: #ffb56b;
+}
+
+.startup-hint h1 {
+  margin: 10px 0 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 0.96;
+  letter-spacing: -0.04em;
+}
+
+.hint-text {
+  margin: 14px 0 0;
+  color: #c3d8e6;
+  line-height: 1.7;
+}
+
+.primary-button,
+.interact-button,
+.touch-pad button {
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 160ms ease, opacity 160ms ease, background 160ms ease;
+}
+
+.primary-button,
+.interact-button {
+  margin-top: 16px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #ffe08c, #ff9857);
+  color: #1f140d;
+  font-weight: 700;
+}
+
+.crosshair-wrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  transform: translate(-50%, -50%);
+}
+
+.crosshair::before,
+.crosshair::after {
+  content: '';
+  position: absolute;
+  background: rgba(207, 245, 255, 0.78);
+}
+
+.crosshair::before {
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  transform: translateX(-50%);
+}
+
+.crosshair::after {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  transform: translateY(-50%);
+}
+
+.center-prompt {
+  position: absolute;
+  left: 50%;
+  bottom: 112px;
+  transform: translateX(-50%);
+  padding: 10px 15px;
+  border-radius: 999px;
+  border: 1px solid rgba(133, 235, 255, 0.18);
+  background: rgba(4, 10, 18, 0.76);
+  color: #eaf8ff;
+  font-size: 0.92rem;
+}
+
+.center-prompt.active {
+  border-color: rgba(255, 181, 107, 0.32);
+  background: rgba(68, 36, 18, 0.58);
+  color: #fff0d8;
+}
+
+.touch-joystick {
+  position: absolute;
+  width: 108px;
+  height: 108px;
+  margin-left: -54px;
+  margin-top: -54px;
+  border-radius: 50%;
+  border: 1px solid rgba(133, 235, 255, 0.22);
+  background: rgba(4, 10, 18, 0.34);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.touch-joystick.visible {
+  opacity: 1;
+}
+
+.touch-joystick-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 48px;
+  height: 48px;
+  margin-left: -24px;
+  margin-top: -24px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(185, 226, 244, 0.88));
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.26);
+}
+
+.controls-dock {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  align-items: end;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 20px;
+  padding-bottom: calc(14px + env(safe-area-inset-bottom));
+}
+
+.touch-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 66px);
+  gap: 8px;
+}
+
+.touch-pad button {
+  min-height: 54px;
+  background: rgba(128, 218, 255, 0.14);
+  border: 1px solid rgba(128, 218, 255, 0.15);
+  color: #edf8ff;
+  touch-action: manipulation;
+}
+
+.touch-pad button[data-control='up'] {
+  grid-column: 2;
+}
+
+.touch-pad button[data-control='left'] {
+  grid-column: 1;
+}
+
+.touch-pad button[data-control='down'] {
+  grid-column: 2;
+}
+
+.touch-pad button[data-control='right'] {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.interact-button {
+  margin-top: 0;
+  min-height: 54px;
+  padding-inline: 18px;
+  touch-action: manipulation;
+}
+
+.primary-button:hover,
+.interact-button:hover,
+.touch-pad button:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 720px) {
+  .viewport-stage {
+    min-height: 100dvh;
+  }
+
+  .viewport-canvas {
+    height: 100dvh;
+  }
+
+  .startup-hint {
+    width: min(100vw - 24px, 560px);
+    padding: 18px;
+    top: calc(50% - 24px);
+  }
+
+  .startup-hint h1 {
+    font-size: clamp(1.8rem, 8vw, 2.6rem);
+  }
+
+  .hint-text {
+    font-size: 0.95rem;
+  }
+
+  .center-prompt {
+    bottom: calc(104px + env(safe-area-inset-bottom));
+    width: calc(100% - 28px);
+    text-align: center;
+    font-size: 0.88rem;
+    padding: 10px 12px;
+  }
+
+  .controls-dock {
+    right: 14px;
+    left: auto;
+    bottom: 14px;
+    padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+    gap: 10px;
+  }
+
+  .touch-pad {
+    display: none;
+  }
+
+  .interact-button {
+    min-height: 58px;
+    min-width: 110px;
+    margin-top: 0;
+    font-size: 0.98rem;
+    border-radius: 16px;
+  }
+
+  .touch-joystick {
+    width: 120px;
+    height: 120px;
+    margin-left: -60px;
+    margin-top: -60px;
+  }
+
+  .touch-joystick-knob {
+    width: 54px;
+    height: 54px;
+    margin-left: -27px;
+    margin-top: -27px;
+  }
+}
+
+@media (max-width: 480px) {
+  .startup-hint {
+    width: calc(100vw - 20px);
+    padding: 16px;
+  }
+
+  .startup-hint h1 {
+    font-size: clamp(1.55rem, 8vw, 2.2rem);
+  }
+
+  .hint-text {
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .primary-button {
+    width: 100%;
+  }
+
+  .controls-dock {
+    right: 10px;
+    bottom: 10px;
+  }
+
+  .interact-button {
+    min-width: 96px;
+    padding-inline: 14px;
+  }
+}
